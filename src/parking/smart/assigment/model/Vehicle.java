@@ -2,8 +2,6 @@ package parking.smart.assigment.model;
 
 import java.time.LocalDateTime;
 
-import parking.smart.assigment.model.Vehicle.VehicleSize;
-
 public class Vehicle {
     private String plate;
     private VehicleType type;
