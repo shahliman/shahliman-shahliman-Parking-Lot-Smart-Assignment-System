@@ -1,4 +1,4 @@
-package parking.smart.assigment.model;
+package parking.smart.assignment.model;
 
 public class Car extends Vehicle {
     public Car(String plate, VehicleSize size) {
@@ -6,8 +6,8 @@ public class Car extends Vehicle {
     }
 
     @Override
-    public void Park() {
-        super.Park();
+    public void park() {
+        super.park();
         System.out.println("Car with plate " + this.getPlate() + " has been parked.");
     }
 

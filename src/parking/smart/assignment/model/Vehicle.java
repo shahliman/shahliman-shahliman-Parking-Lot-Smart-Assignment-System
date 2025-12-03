@@ -1,4 +1,4 @@
-package parking.smart.assigment.model;
+package parking.smart.assignment.model;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +9,7 @@ public class Vehicle {
     private boolean isParked;
     private String assignedSpotID;
     private LocalDateTime entryTime;
+    private LocalDateTime exitTime;
 
     public Vehicle(String plate, VehicleType type, VehicleSize size) {
         this.plate = plate;
@@ -48,6 +49,10 @@ public class Vehicle {
         return entryTime;
     }
 
+    public LocalDateTime getExitTime() {
+        return exitTime;
+    }
+
     public void setPlate(String plate) {
         this.plate = plate;
     }
@@ -56,9 +61,14 @@ public class Vehicle {
         this.size = size;
     }
 
-    public void Park() {
+    public void park() {
         this.isParked = true;
         this.entryTime = LocalDateTime.now();
+    }
+
+    public void unPark() {
+        this.isParked = false;
+        this.exitTime = LocalDateTime.now();
     }
 
     public void leave() {

@@ -1,4 +1,4 @@
-package parking.smart.assigment.model;
+package parking.smart.assignment.model;
 
 public class ParkingSpot {
     private String spotID;
@@ -18,7 +18,7 @@ public class ParkingSpot {
         return spotID;
     }
 
-    public String GetType() {
+    public String getType() {
         return type;
     }
 
