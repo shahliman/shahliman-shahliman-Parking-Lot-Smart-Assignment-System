@@ -27,6 +27,10 @@ public class Zone {
         return spots.size();
     }
 
+    public List<ParkingSpot> getSpots() {
+        return spots;
+    }
+
     public List<Vehicle> getParkedVehicle() {
         // Hazırda park edilmiş avtomobillərin siyahısını qaytarır
         return spots.stream()
