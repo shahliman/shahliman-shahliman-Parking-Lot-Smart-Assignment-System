@@ -3,6 +3,8 @@ package parking.smart.assignment.model;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import parking.smart.assignment.model.Vehicle.VehicleSize;
+
 public class ParkingHistory {
     private String plate;
     private String spotID;
@@ -12,14 +14,14 @@ public class ParkingHistory {
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
 
-    public ParkingHistory(String plate, String zoneID, String spotID, double fee, Vehicle.VehicleSize size,
-            LocalDateTime entryTime) {
+    public ParkingHistory(String plate, String zoneID, String spotID, LocalDateTime entryTime, VehicleSize size) {
         this.plate = plate;
         this.zoneID = zoneID;
         this.spotID = spotID;
-        this.fee = fee;
         this.vehicleSize = size;
         this.entryTime = entryTime;
+
+        this.fee = 0.0;
 
     }
 
