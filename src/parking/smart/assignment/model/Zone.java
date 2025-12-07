@@ -65,7 +65,7 @@ public class Zone {
     public void unParkVehicle(Vehicle vehicle) {
         // Avtomobilin hansı spotda olduğunu tap
         ParkingSpot occupiedSpot = spots.stream()
-                .filter(spot -> spot.getAssignedVehicle() == vehicle)
+                .filter(spot -> spot.getAssignedVehicle().equals(vehicle))
                 .findFirst()
                 .orElse(null);
 
