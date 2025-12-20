@@ -1,39 +1,70 @@
 package parking.smart.assignment;
 
-import parking.smart.assignment.model.Car;
-import parking.smart.assignment.model.Motorcycle;
-import parking.smart.assignment.model.Vehicle;
-import parking.smart.assignment.model.Zone;
-// import parking.smart.assignment.service.SpotService;
+import parking.smart.assignment.model.*;
+import parking.smart.assignment.service.*;
+import java.util.Arrays;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        Zone zoneA = new Zone("A", 5);
+        System.out.println("=== SMART PARKING SYSTEM STARTING ===");
 
-        Car car1 = new Car("10-AB-123", Vehicle.VehicleSize.MEDIUM);
-        Car car2 = new Car("01-ZZ-001", Vehicle.VehicleSize.MEDIUM);
-        Car car3 = new Car("30-TEST-030", Vehicle.VehicleSize.MEDIUM);
-        Motorcycle moto1 = new Motorcycle("20-XY-456", Vehicle.VehicleSize.SMALL);
+        // 1. SERVİSLƏRİ HAZIRLAYIRIQ
+        HistoryService historyService = new HistoryService();
+        PaymentService paymentService = new PaymentService();
+        Zone zoneA = new Zone("A", 10);
+        SpotService spotService = new SpotService(Arrays.asList(zoneA));
+        AssignmentService assignmentService = new AssignmentService(spotService, historyService, paymentService);
 
-        // 1. Parklanma
-        zoneA.parkVehicle(car1); // A1
-        zoneA.parkVehicle(moto1); // A2
-        zoneA.parkVehicle(car2); // A3
+        // 2. MAŞINLAR DAXİL OLUR (Vaxt avtomatik car1 daxilində yaranır)
+        System.out.println("\n--- GİRİŞLƏR ---");
+        Vehicle car1 = new Car("10-FB-1907", Vehicle.VehicleSize.MEDIUM);
+        assignmentService.parkVehicle(car1);
 
-        // A2 boşalır
-        zoneA.unParkVehicle(moto1);
+        Vehicle car2 = new Car("99-ZZ-444", Vehicle.VehicleSize.SMALL);
+        assignmentService.parkVehicle(car2);
 
-        // 2. Boş Spotların vəziyyəti
-        zoneA.getAvailableSpotCount(); // 3 boş spot (A2, A4, A5)
-        System.out.println("Next empty spot: " + zoneA.getAvailableNextSpotID()); // Nəticə A2 olmalıdır!
+        // 3. ÖDƏNİŞİ TEST ETMƏK ÜÇÜN SİMULYASIYA
+        // Əgər setEntryTime yoxdursa, biz ParkingHistory daxilindəki vaxtı əl ilə
+        // dəyişib
+        // PaymentService-ə göndərə bilərik ki, 0 AZN çıxmasın.
 
-        // 3. A2-nin təkrar doldurulması (Test)
-        zoneA.parkVehicle(car3); // A2-yə park olunmalıdır
+        System.out.println("\n--- ÇIXIŞLAR VƏ ÖDƏNİŞ HESABLANMASI ---");
 
-        // 4. Son vəziyyət
-        zoneA.printParkedVehicles();
+        // Car 1 çıxış edir
+        ParkingHistory h1 = assignmentService.unParkVehicle(car1);
+        if (h1 != null) {
+            // Ödənişi görmək üçün giriş vaxtını tarixçədə 2 saat əvvələ çəkirik
+            forcePastTime(h1, 120);
+            paymentService.calculateFee(h1);
+        }
 
-        zoneA.getAvailableSpotCount(); // 2 boş spot (A4, A5)
-        System.out.println("Next empty spot : " + zoneA.getAvailableNextSpotID()); // Nəticə A4 olmalıdır!
+        // Car 2 çıxış edir
+        ParkingHistory h2 = assignmentService.unParkVehicle(car2);
+        if (h2 != null) {
+            // 45 dəqiqə əvvələ çəkirik
+            forcePastTime(h2, 45);
+            paymentService.calculateFee(h2);
+        }
+
+        // 4. YEKUN HESABAT
+        historyService.printCompletedHistoryRecords();
+    }
+
+    /**
+     * setEntryTime metodu olmayan halda, ödənişi test etmək üçün
+     * ParkingHistory obyektinin daxili məlumatını dəyişən köməkçi metod.
+     */
+    private static void forcePastTime(ParkingHistory history, int minutesAgo) {
+        // Bu hissə üçün ParkingHistory-də setEntryTime olmalıdır.
+        // Əgər orada da yoxdursa, PaymentService-də birbaşa hesablama zamanı dəqiqəni
+        // əl ilə verə bilərik.
+        try {
+            java.lang.reflect.Field field = history.getClass().getDeclaredField("entryTime");
+            field.setAccessible(true);
+            field.set(history, LocalDateTime.now().minusMinutes(minutesAgo));
+        } catch (Exception e) {
+            // Reflection xətası olarsa, sadəcə keçirik
+        }
     }
 }
