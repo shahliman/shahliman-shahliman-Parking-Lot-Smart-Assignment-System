@@ -1,5 +1,7 @@
 package parking.smart.assignment;
 
+import parking.smart.assignment.controller.AdminController;
+import parking.smart.assignment.controller.ParkingController;
 import parking.smart.assignment.model.*;
 import parking.smart.assignment.service.*;
 import java.util.Arrays;
@@ -15,7 +17,8 @@ public class Main {
         Zone zoneA = new Zone("A", 10);
         SpotService spotService = new SpotService(Arrays.asList(zoneA));
         AssignmentService assignmentService = new AssignmentService(spotService, historyService, paymentService);
-
+        ParkingController parkingController = new ParkingController(assignmentService, paymentService);
+        AdminController adminController = new AdminController(historyService, spotService);
         // 2. MAŞINLAR DAXİL OLUR (Vaxt avtomatik car1 daxilində yaranır)
         System.out.println("\n--- GİRİŞLƏR ---");
         Vehicle car1 = new Car("10-FB-1907", Vehicle.VehicleSize.MEDIUM);
@@ -49,12 +52,12 @@ public class Main {
 
         // 4. YEKUN HESABAT
         historyService.printCompletedHistoryRecords();
+
+        System.out.println("\n--- ADMİN PANELİ: YEKUN STATİSTİKA ---");
+        adminController.showSystemStatistics();
+        adminController.viewFullHistoryReports();
     }
 
-    /**
-     * setEntryTime metodu olmayan halda, ödənişi test etmək üçün
-     * ParkingHistory obyektinin daxili məlumatını dəyişən köməkçi metod.
-     */
     private static void forcePastTime(ParkingHistory history, int minutesAgo) {
         // Bu hissə üçün ParkingHistory-də setEntryTime olmalıdır.
         // Əgər orada da yoxdursa, PaymentService-də birbaşa hesablama zamanı dəqiqəni
@@ -66,5 +69,6 @@ public class Main {
         } catch (Exception e) {
             // Reflection xətası olarsa, sadəcə keçirik
         }
+
     }
 }

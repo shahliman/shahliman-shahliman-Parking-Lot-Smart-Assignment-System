@@ -47,6 +47,18 @@ public class HistoryService {
         return null;
     }
 
+    public int getCompletedHistoryRecordsCount() {
+        return completedHistoryRecords.size();
+    }
+
+    public double getTotalRevenue() {
+        double total = 0.0;
+        for (ParkingHistory records : completedHistoryRecords) {
+            total += records.getFee();
+        }
+        return total;
+    }
+
     public void printCompletedHistoryRecords() {
         System.out.println("\n*** TAMAMLANMIŞ PARKİNG TARİXÇƏSİ HESABATI ***");
 
