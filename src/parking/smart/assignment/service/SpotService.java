@@ -13,6 +13,11 @@ public class SpotService {
         this.zones = initialZones;
     }
 
+    // SpotService daxilində zonaların siyahısını qaytaran metod
+    public List<Zone> getAllZones() {
+        return this.zones; // Zonaların saxlandığı List-i qaytarır
+    }
+
     public ParkingSpot findAvailableSpot(VehicleSize requestedSize) {
         for (Zone zone : zones) {
             ParkingSpot availableSpot = zone.getSpots().stream()
@@ -40,6 +45,19 @@ public class SpotService {
                 return occupiedSpot;
             }
 
+        }
+        return null;
+    }
+
+    public ParkingSpot findSpotByPlate(String plate) {
+        for (Zone zone : zones) {
+            for (ParkingSpot spot : zone.getSpots()) {
+                if (spot.getIsOccupied() && spot.getVehicle() != null) {
+                    if (spot.getVehicle().getPlate().equalsIgnoreCase(plate)) {
+                        return spot;
+                    }
+                }
+            }
         }
         return null;
     }

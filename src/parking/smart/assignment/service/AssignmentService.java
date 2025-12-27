@@ -17,7 +17,23 @@ public class AssignmentService {
         this.paymentService = paymentService;
     }
 
+    public SpotService getSpotService() {
+        return this.spotService;
+    }
+
     public boolean parkVehicle(Vehicle vehicle) {
+        // 1. TƏKRAR GİRİŞ YOXALMASI: Maşın artıq sistemdə varmı?
+        // SpotService daxilində findSpotByPlate metodunu çağırmalıyıq
+        ParkingSpot existingSpot = spotService.findSpotByPlate(vehicle.getPlate());
+
+        if (existingSpot != null) {
+            System.out.println(
+                    "FAILURE: Vehicle " + vehicle.getPlate() + " is already parked at " + existingSpot.getSpotID());
+            // Controller-ə mesaj göndərmək üçün false qaytarırıq
+            return false;
+        }
+
+        // 2. BOŞ YER AXTARIŞI: Əgər maşın yoxdursa, boş yer axtarırıq
         VehicleSize size = vehicle.getSize();
         ParkingSpot availableSpot = spotService.findAvailableSpot(size);
 
@@ -38,27 +54,25 @@ public class AssignmentService {
     }
 
     public ParkingHistory unParkVehicle(Vehicle vehicle) {
-
-        ParkingSpot occupiedSpot = spotService.findSpotByVehicle(vehicle);
+        // findSpotByVehicle(vehicle) əvəzinə findSpotByPlate(vehicle.getPlate())
+        // istifadə edirik
+        ParkingSpot occupiedSpot = spotService.findSpotByPlate(vehicle.getPlate());
 
         if (occupiedSpot != null) {
+            // Tapılan real maşın obyektini götürürük
+            Vehicle realVehicleInSystem = occupiedSpot.getVehicle();
 
-            vehicle.unPark();
+            realVehicleInSystem.unPark();
             occupiedSpot.setRemoveVehicle();
 
-            ParkingHistory completedHistory = historyService.completedHistoryRecords(vehicle);
+            // Tarixçəni sistemdəki real obyektlə tamamlayırıq
+            ParkingHistory completedHistory = historyService.completedHistoryRecords(realVehicleInSystem);
 
             if (completedHistory != null) {
-
                 paymentService.calculateFee(completedHistory);
-
-                System.out.println("SUCCESS: Vehicle " + vehicle.getPlate() +
-                        " unparked from " + occupiedSpot.getSpotID() +
-                        ". Fee: " + String.format("%.2f", completedHistory.getFee()) + " AZN");
                 return completedHistory;
             }
         }
-        System.out.println("FAILURE: Vehicle " + vehicle.getPlate() + " not found in any spot.");
-        return null;
+        return null; // Maşın tapılmadıqda
     }
 }

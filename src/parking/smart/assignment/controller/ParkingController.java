@@ -15,27 +15,31 @@ public class ParkingController {
         this.paymentService = paymentService;
     }
 
-    public void enterVehicle(Vehicle vehicle) {
-        if (!PlateValidator.isValid(vehicle.getPlate())) {
-            System.out.println("⚠️ GİRİŞ RƏDD EDİLDİ: Nömrə formatı səhvdir (" + vehicle.getPlate() + ")");
-            return;
-        }
-        boolean success = assignmentService.parkVehicle(vehicle);
-        if (success) {
-            System.out.println("✅ " + vehicle.getPlate() + " nömrəli vasitə uğurla içəri alındı.");
-        } else {
-            System.out.println("❌ Təəssüf ki, boş yer yoxdur.");
-        }
+    public AssignmentService getAssignmentService() {
+        return this.assignmentService;
     }
 
-    public void exitVehicle(Vehicle vehicle) {
+    public String enterVehicle(Vehicle vehicle) {
+        if (!PlateValidator.isValid(vehicle.getPlate())) {
+
+            return "Nömrə formatı səhvdir!";
+        }
+        boolean success = assignmentService.parkVehicle(vehicle);
+        return success ? "Uğurla park edildi!" : "Boş yer yoxdur!";
+    }
+
+    public String exitVehicle(Vehicle vehicle) {
         ParkingHistory history = assignmentService.unParkVehicle(vehicle);
         if (history != null) {
             double fee = paymentService.calculateFee(history);
-            System.out.println("💰 Çıxış tamamlandı. Ödəniş: " + fee + " AZN");
+            return String.format(
+                    "🚗 Maşın çıxış etdi: %s\n" +
+                            "💰 Ödəniləcək məbləğ: %.2f AZN\n" +
+                            "✅ Sağ olun, yenə gözləyirik!",
+                    vehicle.getPlate(), fee);
 
         } else {
-            System.out.println("⚠️ XƏTA: Bu vasitə sistemdə tapılmadı.");
+            return "XƏTA: Bu vasitə sistemdə tapılmadı.";
         }
 
     }

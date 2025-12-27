@@ -18,6 +18,10 @@ public class ParkingSpot {
         return spotID;
     }
 
+    public Vehicle getVehicle() {
+        return assignedVehicle;
+    }
+
     public String getType() {
         return type;
     }
