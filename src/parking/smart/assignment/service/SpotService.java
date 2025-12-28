@@ -18,6 +18,28 @@ public class SpotService {
         return this.zones; // Zonaların saxlandığı List-i qaytarır
     }
 
+    public int getTotalSpotsCount() {
+        int total = 0;
+        for (Zone zone : zones) {
+            // Hər zonadakı yerlərin sayını toplayırıq
+            total += zone.getSpots().size();
+        }
+        return total;
+    }
+
+    public int getOccupiedSpotsCount() {
+        int occupied = 0;
+        for (Zone zone : zones) {
+            for (ParkingSpot spot : zone.getSpots()) {
+                // Əgər yer doludursa, sayğacı artırırıq
+                if (spot.getIsOccupied()) {
+                    occupied++;
+                }
+            }
+        }
+        return occupied;
+    }
+
     public ParkingSpot findAvailableSpot(VehicleSize requestedSize) {
         for (Zone zone : zones) {
             ParkingSpot availableSpot = zone.getSpots().stream()

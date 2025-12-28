@@ -6,6 +6,7 @@ import parking.smart.assignment.model.Vehicle.VehicleSize;
 import parking.smart.assignment.util.DateUtil;
 
 public class ParkingHistory {
+    private Vehicle vehicle;
     private String plate;
     private String spotID;
     private String zoneID;
@@ -23,6 +24,10 @@ public class ParkingHistory {
 
         this.fee = 0.0;
 
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
     public String getPlate() {

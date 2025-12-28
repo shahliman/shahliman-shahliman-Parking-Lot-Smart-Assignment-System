@@ -12,24 +12,18 @@ public class AdminController {
         this.spotService = spotService;
     }
 
+    // --- BU METODLARI ƏLAVƏ ET ---
+    public HistoryService getHistoryService() {
+        return historyService;
+    }
+
+    public SpotService getSpotService() {
+        return spotService;
+    }
+
+    // Mövcud digər metodların aşağıda qalır...
     public void viewCurrentStatues() {
-        System.out.println("\n--- [ADMİN] CARİ PARKİNG VƏZİYYƏTİ ---");
         spotService.printAllSpotStatuses();
     }
-
-    public void viewFullHistoryReports() {
-        System.out.println("\n--- [ADMİN] TAM TARİXÇƏ HESABATI ---");
-        historyService.printCompletedHistoryRecords();
-
-    }
-
-    public void showSystemStatistics() {
-        System.out.println("\n--- [ADMİN] SİSTEM STATİSTİKALARI ---");
-        double totalRevenue = historyService.getTotalRevenue();
-        int totalTransactions = historyService.getCompletedHistoryRecordsCount();
-        System.out.println("Cəmi qazanc: " + String.format("%.2f", totalRevenue) + " AZN");
-        System.out.println("Tamamlanmış parkinq sayı: " + totalTransactions);
-        System.out.println("--------------------------------------");
-    }
-
+    // ...
 }

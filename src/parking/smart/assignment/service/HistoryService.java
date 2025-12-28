@@ -59,6 +59,11 @@ public class HistoryService {
         return total;
     }
 
+    public List<ParkingHistory> getCompletedHistoryRecords() {
+        // Tamamlanmış tarixçə siyahısını qaytarır
+        return this.completedHistoryRecords;
+    }
+
     public void printCompletedHistoryRecords() {
         System.out.println("\n*** TAMAMLANMIŞ PARKİNG TARİXÇƏSİ HESABATI ***");
 

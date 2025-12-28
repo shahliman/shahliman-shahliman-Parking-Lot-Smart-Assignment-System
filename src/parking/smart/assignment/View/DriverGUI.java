@@ -5,99 +5,108 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import parking.smart.assignment.controller.ParkingController;
 import parking.smart.assignment.model.Car;
-import parking.smart.assignment.service.*;
 import parking.smart.assignment.model.ParkingSpot;
 import parking.smart.assignment.model.Vehicle;
 import parking.smart.assignment.model.Zone;
 
 public class DriverGUI extends JFrame {
     private ParkingController parkingController;
-    private JTextField plateField;
+    private String currentPlate; // Bu sürücünün xüsusi maşın nömrəsi
     private JTable liveTable;
     private DefaultTableModel tableModel;
 
-    public DriverGUI(ParkingController controller) {
+    // Constructor artıq nömrəni (plate) qəbul edir
+    public DriverGUI(ParkingController controller, String plate) {
         this.parkingController = controller;
+        this.currentPlate = plate.toUpperCase(); // Nömrəni böyük hərflə saxla
         setupUI();
+        updateTable();
+        // DriverGUI constructorunun sonuna
+        Timer timer = new Timer(1000, e -> updateTable());
+        timer.start();// Pəncərə açılan kimi yalnız bu maşını göstər
+    }
+
+    private String calculateTimeElapsed(java.time.LocalDateTime entry) {
+        if (entry == null)
+            return "---";
+
+        java.time.Duration duration = java.time.Duration.between(entry, java.time.LocalDateTime.now());
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+        long seconds = duration.toSecondsPart();
+
+        if (hours > 0) {
+            return String.format("%d saat, %d dəq", hours, minutes);
+        } else {
+            return String.format("%d dəq, %d san", minutes, seconds);
+        }
     }
 
     private void setupUI() {
-        setTitle("Smart Parking - Driver Terminal");
-        setSize(1000, 650);
+        setTitle("Customer Terminal - " + currentPlate);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(20, 20));
         getContentPane().setBackground(new Color(240, 242, 245));
 
-        // --- 1. SOL PANEL: GİRİŞ/ÇIXIŞ ƏMƏLİYYATLARI ---
+        // --- 1. SOL PANEL: ƏMƏLİYYATLAR ---
         JPanel actionPanel = new JPanel();
-        actionPanel.setPreferredSize(new Dimension(320, 650));
+        actionPanel.setPreferredSize(new Dimension(320, 600));
         actionPanel.setBackground(Color.WHITE);
-        actionPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 25));
+        actionPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 30));
         actionPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(200, 200, 200)));
 
-        JLabel iconLabel = new JLabel("🚗", SwingConstants.CENTER);
-        iconLabel.setFont(new Font("Arial", Font.PLAIN, 60));
+        JLabel iconLabel = new JLabel("👤", SwingConstants.CENTER);
+        iconLabel.setFont(new Font("Arial", Font.PLAIN, 80));
 
-        JLabel titleLabel = new JLabel("Quick Actions");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        JLabel welcomeLabel = new JLabel("Xoş gəlmisiniz!");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 20));
 
-        plateField = new JTextField();
-        plateField.setPreferredSize(new Dimension(250, 50));
-        plateField.setFont(new Font("Arial", Font.BOLD, 18));
-        plateField.setBorder(BorderFactory.createTitledBorder("Vehicle Plate Number"));
+        JLabel plateLabel = new JLabel(currentPlate);
+        plateLabel.setFont(new Font("Arial", Font.ITALIC, 24));
+        plateLabel.setForeground(new Color(52, 152, 219));
 
-        JButton btnCheckIn = createStyledButton("CHECK-IN (ENTRY)", new Color(46, 204, 113));
-        JButton btnCheckOut = createStyledButton("CHECK-OUT (EXIT)", new Color(231, 76, 60));
+        JButton btnCheckIn = createStyledButton("PARK ET (ENTRY)", new Color(46, 204, 113));
+        JButton btnCheckOut = createStyledButton("ÇIXIŞ ET (EXIT)", new Color(231, 76, 60));
 
         actionPanel.add(iconLabel);
-        actionPanel.add(titleLabel);
-        actionPanel.add(plateField);
+        actionPanel.add(welcomeLabel);
+        actionPanel.add(plateLabel);
+        actionPanel.add(new JLabel("--------------------------"));
         actionPanel.add(btnCheckIn);
         actionPanel.add(btnCheckOut);
 
-        // --- 2. SAĞ PANEL: CANLI MONITORİNQ ---
+        // --- 2. SAĞ PANEL: ŞƏXSİ MONITORİNQ ---
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setOpaque(false);
         tablePanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 20));
 
-        JLabel tableTitle = new JLabel("Live Parking Status");
-        tableTitle.setFont(new Font("Arial", Font.BOLD, 20));
+        JLabel tableTitle = new JLabel("Mənim Park Məlumatlarım");
+        tableTitle.setFont(new Font("Arial", Font.BOLD, 18));
         tableTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 
-        String[] cols = { "Spot ID", "Vehicle Plate", "Entry Time", "Status" };
+        String[] cols = { "Məkan", "Maşın Nömrəsi", "Status", "Vaxt" };
         tableModel = new DefaultTableModel(cols, 0);
         liveTable = new JTable(tableModel);
-        liveTable.setRowHeight(35);
-        liveTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        liveTable.setRowHeight(40);
 
         JScrollPane scrollPane = new JScrollPane(liveTable);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-
         tablePanel.add(tableTitle, BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
 
         // --- DÜYMƏLƏRİN MƏNTİQİ ---
         btnCheckIn.addActionListener(e -> {
-            String plate = plateField.getText().trim();
-            if (!plate.isEmpty()) {
-                String response = parkingController.enterVehicle(new Car(plate, Vehicle.VehicleSize.MEDIUM));
-                JOptionPane.showMessageDialog(this, response, "Entry Result", JOptionPane.INFORMATION_MESSAGE);
-                plateField.setText("");
-                // updateTable(); // Bu metodu backend-ə görə dolduracağıq
-                updateTable();
-            }
+            // Sürücü nömrə yaza bilməz, birbaşa currentPlate istifadə olunur
+            String response = parkingController.enterVehicle(new Car(currentPlate, Vehicle.VehicleSize.MEDIUM));
+            JOptionPane.showMessageDialog(this, response, "Parkinq", JOptionPane.INFORMATION_MESSAGE);
+            updateTable();
         });
 
         btnCheckOut.addActionListener(e -> {
-            String plate = plateField.getText().trim();
-            if (!plate.isEmpty()) {
-                // Əgər Car class-ında tək parametr yoxdursa, belə yaz:
-                String response = parkingController.exitVehicle(new Car(plate, Vehicle.VehicleSize.MEDIUM));
-                JOptionPane.showMessageDialog(this, response);
-                plateField.setText("");
-                updateTable();
-            }
+            String response = parkingController.exitVehicle(new Car(currentPlate, Vehicle.VehicleSize.MEDIUM));
+            JOptionPane.showMessageDialog(this, response, "Çıxış", JOptionPane.INFORMATION_MESSAGE);
+            updateTable();
         });
 
         add(actionPanel, BorderLayout.WEST);
@@ -106,50 +115,44 @@ public class DriverGUI extends JFrame {
 
     private JButton createStyledButton(String text, Color color) {
         JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(250, 55));
+        btn.setPreferredSize(new Dimension(260, 60));
         btn.setBackground(color);
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Arial", Font.BOLD, 14));
         btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return btn;
     }
 
     public void updateTable() {
-        // 1. Cədvəli təmizləyirik
         tableModel.setRowCount(0);
-
-        // 2. Məlumatları gətiririk
-        // Qeyd: getAllZones() metodunun SpotService-də List<Zone> qaytardığından əmin
-        // ol
         java.util.List<parking.smart.assignment.model.Zone> zones = parkingController.getAssignmentService()
                 .getSpotService().getAllZones();
 
         if (zones == null)
             return;
 
-        for (parking.smart.assignment.model.Zone zone : zones) {
+        for (Zone zone : zones) {
             for (ParkingSpot spot : zone.getSpots()) {
+                if (spot.getIsOccupied() && spot.getVehicle() != null &&
+                        spot.getVehicle().getPlate().equalsIgnoreCase(currentPlate)) {
 
-                // Maşın nömrəsini təhlükəsiz şəkildə alırıq
-                String plate = "---";
-                if (spot.getIsOccupied() && spot.getVehicle() != null) {
-                    plate = spot.getVehicle().getPlate();
+                    // Müddəti hesablayırıq
+                    String timeElapsed = calculateTimeElapsed(spot.getVehicle().getEntryTime());
+
+                    // SÜTUN ARDICILLIĞINA DİQQƏT:
+                    // 1. Spot ID | 2. Plate | 3. Entry Time (Zaman) | 4. Status
+                    tableModel.addRow(new Object[] {
+                            zone.getZoneID() + spot.getSpotID(), // Sütun 0: Məkan
+                            currentPlate, // Sütun 1: Nömrə
+                            "🔴 Park edilib", // Sütun 3: STATUS
+                            timeElapsed // Sütun 2: VAXT (Müddət)
+                    });
+                    return;
                 }
-
-                // Status və Giriş vaxtı
-                String status = spot.getIsOccupied() ? "🔴 Dolu" : "🟢 Boş";
-                String entryTime = spot.getIsOccupied() ? "Daxil olub" : "---";
-
-                // Cədvələ sətir əlavə edirik
-                tableModel.addRow(new Object[] {
-                        zone.getZoneID() + spot.getSpotID(), // Məsələn: A1
-                        plate,
-                        entryTime,
-                        status
-                });
             }
         }
+        // Tapılmadıqda:
+        tableModel.addRow(new Object[] { "---", currentPlate, "---", "🟢 Park edilməyib" });
     }
 }

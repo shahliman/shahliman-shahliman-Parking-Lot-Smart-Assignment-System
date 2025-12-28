@@ -15,7 +15,7 @@ public class LoginGUI extends JFrame {
         this.adminController = aCtrl;
 
         setTitle("Smart Parking System - Login");
-        setSize(400, 300);
+        setSize(400, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -43,6 +43,7 @@ public class LoginGUI extends JFrame {
         driverBtn.setContentAreaFilled(false);
         driverBtn.setBorderPainted(false);
         driverBtn.setForeground(Color.GRAY);
+        driverBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Panellərə əlavə etmək
         mainPanel.add(titleLabel);
@@ -61,10 +62,19 @@ public class LoginGUI extends JFrame {
             String pass = new String(passField.getPassword());
 
             if (user.equals("admin") && pass.equals("1234")) {
-                AdminGUI adminWin = new AdminGUI(adminController); // Yeni yaratdığımız class
+                AdminGUI adminWin = new AdminGUI(adminController);
+                this.setVisible(false); // Logini gizlət
                 adminWin.setVisible(true);
-                dispose();
-                // Login pəncərəsini bağla
+
+                // Admin bağlandıqda Login geri qayıtsın
+                adminWin.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        setVisible(true);
+                        userField.setText("");
+                        passField.setText("");
+                    }
+                });
             } else {
                 JOptionPane.showMessageDialog(this, "Səhv istifadəçi adı və ya şifrə!", "Xəta",
                         JOptionPane.ERROR_MESSAGE);
@@ -73,9 +83,22 @@ public class LoginGUI extends JFrame {
 
         // Sürücü kimi davam et
         driverBtn.addActionListener(e -> {
-            DriverGUI driverWin = new DriverGUI(parkingController);
-            driverWin.setVisible(true);
-            dispose();
+            String plate = JOptionPane.showInputDialog(this, "Maşın nömrənizi daxil edin:");
+
+            if (plate != null && !plate.trim().isEmpty()) {
+                DriverGUI driverWin = new DriverGUI(parkingController, plate.trim().toUpperCase());
+
+                this.setVisible(false); // Login pəncərəsini gizlədirik
+                driverWin.setVisible(true);
+
+                // DriverGUI bağlandığında LoginGUI yenidən görünsün
+                driverWin.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        setVisible(true); // Login pəncərəsini geri qaytarır
+                    }
+                });
+            }
         });
     }
 }
