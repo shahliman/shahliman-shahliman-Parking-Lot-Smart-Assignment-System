@@ -117,14 +117,21 @@ public class AdminGUI extends JFrame {
         historyTableModel.setRowCount(0);
         List<ParkingHistory> history = adminController.getHistoryService().getCompletedHistoryRecords();
 
+        if (history == null)
+            return; // Siyahı boşdursa çıx
+
         for (ParkingHistory record : history) {
-            historyTableModel.addRow(new Object[] {
-                    record.getVehicle().getPlate(), // Burada getVehicle() işləməlidir
-                    record.getEntryTime(),
-                    record.getExitTime(),
-                    String.format("%.2f", record.getFee()),
-                    record.getVehicle().getAssignedSpotID()
-            });
+            // Əgər record və ya daxilindəki vehicle null-dursa xəta verməsin deyə
+            // yoxlayırıq
+            if (record != null && record.getVehicle() != null) {
+                historyTableModel.addRow(new Object[] {
+                        record.getVehicle().getPlate(),
+                        record.getEntryTime() != null ? record.getEntryTime() : "---",
+                        record.getExitTime() != null ? record.getExitTime() : "Davam edir",
+                        String.format("%.2f", record.getFee()),
+                        record.getVehicle().getAssignedSpotID()
+                });
+            }
         }
     }
 

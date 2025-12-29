@@ -2,28 +2,27 @@ package parking.smart.assignment.model;
 
 import java.time.LocalDateTime;
 
-import parking.smart.assignment.model.Vehicle.VehicleSize;
+// import parking.smart.assignment.model.Vehicle.VehicleSize;
 import parking.smart.assignment.util.DateUtil;
 
 public class ParkingHistory {
     private Vehicle vehicle;
     private String plate;
-    private String spotID;
     private String zoneID;
-    private double fee;
-    private Vehicle.VehicleSize vehicleSize;
+    private String spotID;
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
+    private Vehicle.VehicleSize vehicleSize;
+    private double fee;
 
-    public ParkingHistory(String plate, String zoneID, String spotID, LocalDateTime entryTime, VehicleSize size) {
+    public ParkingHistory(Vehicle vehicle, String plate, String zone, String spotID, LocalDateTime entryTime,
+            Vehicle.VehicleSize size) {
+        this.vehicle = vehicle;
         this.plate = plate;
-        this.zoneID = zoneID;
+        this.zoneID = zone;
         this.spotID = spotID;
-        this.vehicleSize = size;
         this.entryTime = entryTime;
-
-        this.fee = 0.0;
-
+        this.vehicleSize = size;
     }
 
     public Vehicle getVehicle() {

@@ -20,6 +20,7 @@ public class HistoryService {
 
     public void createParkingEntry(Vehicle v) {
         ParkingHistory history = new ParkingHistory(
+                v,
                 v.getPlate(),
                 v.getAssignedSpotID().substring(0, 1),
                 v.getAssignedSpotID(),
