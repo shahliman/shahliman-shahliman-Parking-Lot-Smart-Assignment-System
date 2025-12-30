@@ -3,6 +3,7 @@ package parking.smart.assignment.View;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+
 import java.util.List;
 import parking.smart.assignment.controller.AdminController;
 import parking.smart.assignment.model.ParkingHistory;
@@ -19,6 +20,11 @@ public class AdminGUI extends JFrame {
     public AdminGUI(AdminController controller) {
         this.adminController = controller;
         setupUI();
+
+        // BURANI ƏLAVƏ ET:
+        loadHistoryFromDatabase();
+
+        updateStats();
         startRealTimeUpdates();
     }
 
@@ -57,10 +63,9 @@ public class AdminGUI extends JFrame {
             cardLayout.show(contentPanel, "Gösterge Paneli");
         });
         btnHistory.addActionListener(e -> {
-            updateHistoryTable();
+            loadHistoryFromDatabase(); // Hər basanda bazadan ən son halı çəkir
             cardLayout.show(contentPanel, "Tüm Tarihçe");
         });
-
         add(sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
     }
@@ -126,6 +131,40 @@ public class AdminGUI extends JFrame {
                         record.getVehicle().getAssignedSpotID()
                 });
             }
+        }
+    }
+
+    // AdminGUI.java daxilində uyğun bir yerə əlavə et:
+    private void loadHistoryFromDatabase() {
+        if (historyTableModel == null)
+            return;
+
+        historyTableModel.setRowCount(0); // Köhnə siyahını təmizləyirik
+
+        // Bütün tarixi (həm içəridəkiləri, həm çıxanları) bazadan çəkirik
+        String query = "SELECT * FROM parking_history ORDER BY entry_time DESC";
+
+        try (java.sql.Connection conn = parking.smart.assignment.util.DatabaseConfig.getConnection();
+                java.sql.Statement stmt = conn.createStatement();
+                java.sql.ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                String plate = rs.getString("plate");
+                String spot = rs.getString("spot_id");
+                String size = rs.getString("vehicle_size");
+                java.sql.Timestamp entry = rs.getTimestamp("entry_time");
+                java.sql.Timestamp exit = rs.getTimestamp("exit_time");
+                double fee = rs.getDouble("fee");
+
+                String entryStr = (entry != null) ? entry.toString() : "---";
+                String exitStr = (exit != null) ? exit.toString() : "Hələ də parkdadır";
+                String feeStr = (exit != null) ? String.format("%.2f AZN", fee) : "---";
+
+                // Sənin cədvəl sütunlarının sırasına uyğun əlavə et:
+                historyTableModel.addRow(new Object[] { plate, size, entryStr, exitStr, feeStr, spot });
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
     }
 

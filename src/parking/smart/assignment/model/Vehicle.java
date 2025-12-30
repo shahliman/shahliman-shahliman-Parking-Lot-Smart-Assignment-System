@@ -53,6 +53,10 @@ public class Vehicle {
         return exitTime;
     }
 
+    public void setExitTime(LocalDateTime exitTime) {
+        this.exitTime = exitTime;
+    }
+
     public void setPlate(String plate) {
         this.plate = plate;
     }
