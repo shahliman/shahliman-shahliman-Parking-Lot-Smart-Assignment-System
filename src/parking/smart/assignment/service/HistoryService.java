@@ -27,12 +27,12 @@ public class HistoryService {
                 v.getEntryTime(),
                 v.getSize());
         activeHistoryRecords.put(v.getPlate(), history);
-        System.out.println("History: New entry created for " + v.getPlate() +
-                " at " + DateUtil.formatDateTime(v.getEntryTime()));
+        System.out.println("Tarihçe: Yeni giriş oluşturuldu " + v.getPlate() +
+                " da " + DateUtil.formatDateTime(v.getEntryTime()));
     }
 
     public ParkingHistory completedHistoryRecords(Vehicle v) {
-        // DÜZƏLİŞ: Burada yalnız v.getPlate() olmalıdır. Vaxtı axtarışa qatmayın.
+
         ParkingHistory history = activeHistoryRecords.get(v.getPlate());
 
         if (history != null) {
@@ -40,11 +40,9 @@ public class HistoryService {
             activeHistoryRecords.remove(v.getPlate());
             completedHistoryRecords.add(history);
 
-            System.out.println("History: Exit recorded for " + v.getPlate() +
-                    " at " + DateUtil.formatDateTime(v.getExitTime()));
             return history;
         }
-        System.out.println("History: Error - Active record not found for " + v.getPlate());
+        System.out.println("Tarihçe: Hata - Aktif kayıt bulunamadı " + v.getPlate());
         return null;
     }
 
@@ -61,15 +59,15 @@ public class HistoryService {
     }
 
     public List<ParkingHistory> getCompletedHistoryRecords() {
-        // Tamamlanmış tarixçə siyahısını qaytarır
-        return this.completedHistoryRecords;
+
+        return completedHistoryRecords;
     }
 
     public void printCompletedHistoryRecords() {
-        System.out.println("\n*** TAMAMLANMIŞ PARKİNG TARİXÇƏSİ HESABATI ***");
+        System.out.println("\n***TAMAMLANMIŞ PARK GEÇMİŞİ RAPORU ***");
 
         if (completedHistoryRecords.isEmpty()) {
-            System.out.println("Heç bir tamamlanmiş parkinq sessiyasi yoxdur.");
+            System.out.println("Tamamlanmış park seansı bulunmamaktadır..");
             return;
         }
 
@@ -77,12 +75,12 @@ public class HistoryService {
             long minutes = DateUtil.getMinutesBetween(record.getEntryTime(), record.getExitTime());
 
             System.out.println(
-                    "Nömrə: " + record.getPlate() +
+                    "Plaka: " + record.getPlate() +
                             " | Yer: " + record.getSpotID() +
                             " | Giriş: " + DateUtil.formatDateTime(record.getEntryTime()) +
-                            " | Çıxış: " + DateUtil.formatDateTime(record.getExitTime()) +
-                            " | Müddət: " + minutes + " dəq" +
-                            " | Ödəniş: " + String.format("%.2f", record.getFee()) + " AZN");
+                            " | Çıkış: " + DateUtil.formatDateTime(record.getExitTime()) +
+                            " | Süre: " + minutes + " dəq" +
+                            " | Ücret: " + String.format("%.2f", record.getFee()) + " AZN");
         }
         System.out.println("----------------------------------------------");
     }

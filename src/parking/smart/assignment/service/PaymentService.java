@@ -31,12 +31,12 @@ public class PaymentService {
 
         history.setFee(finalFee);
 
-        System.out.println("--- ÖDƏNİŞ QƏBZİ ---");
-        System.out.println("Vasitə: " + history.getPlate());
+        System.out.println("--- ÖDEME MAKBUZU---");
+        System.out.println("Araç: " + history.getPlate());
         System.out.println("Giriş: " + DateUtil.formatDateTime(history.getEntryTime()));
-        System.out.println("Çıxış: " + DateUtil.formatDateTime(history.getExitTime()));
-        System.out.println("Müddət: " + durationInMinutes + " dəqiqə (" + hoursBilled + " saat hesablanıb)");
-        System.out.println("Yekun Məbləğ: " + String.format("%.2f", finalFee) + " AZN");
+        System.out.println("Çıkış: " + DateUtil.formatDateTime(history.getExitTime()));
+        System.out.println("Süre: " + durationInMinutes + " dakika (" + hoursBilled + " saat ücretlendirilip.)");
+        System.out.println("Nihai Tutar: " + String.format("%.2f", finalFee) + " AZN");
         System.out.println("--------------------");
 
         return finalFee;

@@ -12,7 +12,6 @@ public class AdminController {
         this.spotService = spotService;
     }
 
-    // --- BU METODLARI ƏLAVƏ ET ---
     public HistoryService getHistoryService() {
         return historyService;
     }
@@ -21,9 +20,8 @@ public class AdminController {
         return spotService;
     }
 
-    // Mövcud digər metodların aşağıda qalır...
     public void viewCurrentStatues() {
         spotService.printAllSpotStatuses();
     }
-    // ...
+
 }

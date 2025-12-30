@@ -2,102 +2,116 @@ package parking.smart.assignment.View;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import parking.smart.assignment.controller.*;
+import parking.smart.assignment.model.Vehicle;
 
 public class LoginGUI extends JFrame {
-    private JTextField userField;
-    private JPasswordField passField;
     private ParkingController parkingController;
     private AdminController adminController;
 
-    public LoginGUI(ParkingController pCtrl, AdminController aCtrl) {
-        this.parkingController = pCtrl;
-        this.adminController = aCtrl;
+    public LoginGUI(ParkingController parkingController, AdminController adminController) {
+        this.parkingController = parkingController;
+        this.adminController = adminController;
+        setupUI();
+    }
 
-        setTitle("Smart Parking System - Login");
-        setSize(400, 350);
+    private void setupUI() {
+        setTitle("Akıllı Park Etme - Giriş");
+        setSize(400, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
 
-        // Əsas Panel
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(5, 1, 10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        setLayout(new BorderLayout(0, 0));
+        getContentPane().setBackground(Color.WHITE);
 
-        // Komponentlər
-        JLabel titleLabel = new JLabel("PARKING LOGIN", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setOpaque(false);
 
-        userField = new JTextField();
-        userField.setBorder(BorderFactory.createTitledBorder("Username"));
-
-        passField = new JPasswordField();
-        passField.setBorder(BorderFactory.createTitledBorder("Password"));
-
-        JButton loginBtn = new JButton("Login as Admin");
-        loginBtn.setBackground(new Color(44, 62, 80));
-        loginBtn.setForeground(Color.WHITE);
-
-        JButton driverBtn = new JButton("Continue as Driver");
-        driverBtn.setContentAreaFilled(false);
-        driverBtn.setBorderPainted(false);
-        driverBtn.setForeground(Color.GRAY);
+        JButton driverBtn = new JButton("KULLANICI GİRİŞİ");
+        driverBtn.setPreferredSize(new Dimension(280, 80));
+        driverBtn.setBackground(new Color(46, 204, 113));
+        driverBtn.setForeground(Color.WHITE);
+        driverBtn.setFont(new Font("Arial", Font.BOLD, 20));
+        driverBtn.setFocusPainted(false);
         driverBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Panellərə əlavə etmək
-        mainPanel.add(titleLabel);
-        mainPanel.add(userField);
-        mainPanel.add(passField);
-        mainPanel.add(loginBtn);
-        mainPanel.add(driverBtn);
+        centerPanel.add(driverBtn);
+        add(centerPanel, BorderLayout.CENTER);
 
-        add(mainPanel);
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.setOpaque(false);
 
-        // --- MƏNTİQ (BAĞLANTI) ---
+        JButton adminBtn = new JButton("Yönetici Paneli");
+        adminBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        adminBtn.setForeground(Color.LIGHT_GRAY);
+        adminBtn.setBorderPainted(false);
+        adminBtn.setContentAreaFilled(false);
+        adminBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Admin girişi
-        loginBtn.addActionListener(e -> {
-            String user = userField.getText();
-            String pass = new String(passField.getPassword());
+        bottomPanel.add(adminBtn);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        add(bottomPanel, BorderLayout.SOUTH);
 
-            if (user.equals("admin") && pass.equals("1234")) {
-                AdminGUI adminWin = new AdminGUI(adminController);
-                this.setVisible(false); // Logini gizlət
-                adminWin.setVisible(true);
+        driverBtn.addActionListener(e -> {
+            String plateInput = JOptionPane.showInputDialog(this, "Araba plaka numarasın giriniz:");
 
-                // Admin bağlandıqda Login geri qayıtsın
-                adminWin.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        setVisible(true);
-                        userField.setText("");
-                        passField.setText("");
-                    }
-                });
-            } else {
-                JOptionPane.showMessageDialog(this, "Səhv istifadəçi adı və ya şifrə!", "Xəta",
-                        JOptionPane.ERROR_MESSAGE);
+            if (plateInput != null && !plateInput.trim().isEmpty()) {
+                String finalPlate = plateInput.trim().toUpperCase();
+
+                Vehicle.VehicleSize[] sizes = Vehicle.VehicleSize.values();
+                Vehicle.VehicleSize selectedSize = (Vehicle.VehicleSize) JOptionPane.showInputDialog(
+                        this, "Boyutu seçin:", "Seçim",
+                        JOptionPane.QUESTION_MESSAGE, null, sizes, sizes[1]);
+
+                if (selectedSize != null) {
+                    DriverGUI driverWin = new DriverGUI(parkingController, finalPlate, selectedSize);
+                    this.setVisible(false);
+                    driverWin.setVisible(true);
+
+                    driverWin.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                            setVisible(true);
+                        }
+                    });
+                }
             }
         });
 
-        // Sürücü kimi davam et
-        driverBtn.addActionListener(e -> {
-            String plate = JOptionPane.showInputDialog(this, "Maşın nömrənizi daxil edin:");
+        adminBtn.addActionListener(e -> {
 
-            if (plate != null && !plate.trim().isEmpty()) {
-                DriverGUI driverWin = new DriverGUI(parkingController, plate.trim().toUpperCase());
+            JTextField usernameField = new JTextField();
+            JPasswordField passwordField = new JPasswordField();
 
-                this.setVisible(false); // Login pəncərəsini gizlədirik
-                driverWin.setVisible(true);
+            Object[] message = {
+                    "Kullanıcı Adı:", usernameField,
+                    "Şifre:", passwordField
+            };
 
-                // DriverGUI bağlandığında LoginGUI yenidən görünsün
-                driverWin.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        setVisible(true); // Login pəncərəsini geri qaytarır
-                    }
-                });
+            int option = JOptionPane.showConfirmDialog(this, message, "Admin Girişi", JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE);
+
+            if (option == JOptionPane.OK_OPTION) {
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+
+                if (username.equals("admin") && password.equals("12345")) {
+                    AdminGUI adminWin = new AdminGUI(adminController);
+                    this.setVisible(false);
+                    adminWin.setVisible(true);
+
+                    adminWin.addWindowListener(new java.awt.event.WindowAdapter() {
+                        @Override
+                        public void windowClosing(java.awt.event.WindowEvent e) {
+                            setVisible(true);
+                        }
+                    });
+                } else {
+                    JOptionPane.showMessageDialog(this, "Kullanıcı adı veya şifre yanlış.!", "Hata",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
     }

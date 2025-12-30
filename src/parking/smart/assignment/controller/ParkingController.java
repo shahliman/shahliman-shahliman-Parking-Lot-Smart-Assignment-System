@@ -3,16 +3,14 @@ package parking.smart.assignment.controller;
 import parking.smart.assignment.model.Vehicle;
 import parking.smart.assignment.model.ParkingHistory;
 import parking.smart.assignment.service.AssignmentService;
-import parking.smart.assignment.service.PaymentService;
 import parking.smart.assignment.util.PlateValidator;
 
 public class ParkingController {
     private final AssignmentService assignmentService;
-    private final PaymentService paymentService;
 
-    public ParkingController(AssignmentService assignmentService, PaymentService paymentService) {
+    public ParkingController(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
-        this.paymentService = paymentService;
+
     }
 
     public AssignmentService getAssignmentService() {
@@ -22,24 +20,24 @@ public class ParkingController {
     public String enterVehicle(Vehicle vehicle) {
         if (!PlateValidator.isValid(vehicle.getPlate())) {
 
-            return "Nömrə formatı səhvdir!";
+            return "Plaka Biçimi Yalnış";
         }
         boolean success = assignmentService.parkVehicle(vehicle);
-        return success ? "Uğurla park edildi!" : "Boş yer yoxdur!";
+        return success ? "Park işlemi başarıyla tamamlandı." : "Boş yer yok.!";
     }
 
     public String exitVehicle(Vehicle vehicle) {
         ParkingHistory history = assignmentService.unParkVehicle(vehicle);
         if (history != null) {
-            double fee = paymentService.calculateFee(history);
+            double fee = history.getFee();
             return String.format(
-                    "🚗 Maşın çıxış etdi: %s\n" +
-                            "💰 Ödəniləcək məbləğ: %.2f AZN\n" +
-                            "✅ Sağ olun, yenə gözləyirik!",
+                    "Araba çıktı. %s\n" +
+                            "Ödenecek tutar: %.2f AZN\n" +
+                            "Teşekkür ederiz, tekrar bekliyoruz.!",
                     vehicle.getPlate(), fee);
 
         } else {
-            return "XƏTA: Bu vasitə sistemdə tapılmadı.";
+            return "HATA: Bu araç sistemde bulunamadı.";
         }
 
     }

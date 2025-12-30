@@ -81,7 +81,7 @@ public class Vehicle {
 
     @Override
     public String toString() {
-        return type + "|" + plate + " | " + size + " | parked=" + isParked + " | spot=" + assignedSpotID;
+        return type + "|" + plate + " | " + size + " | Park Durumu=" + isParked + " | Yer=" + assignedSpotID;
     }
 
 }

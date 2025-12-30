@@ -63,15 +63,14 @@ public class ParkingHistory {
 
     @Override
     public String toString() {
-        // 2. DateUtil-i burada istifadə edərək vaxtları formatlayırıq
-        String entryStr = DateUtil.formatDateTime(entryTime);
-        String exitStr = (exitTime != null) ? DateUtil.formatDateTime(exitTime) : "Hələ çıxış etməyib";
 
-        // 3. İki vaxt arasındakı dəqiqəni hesablamaq üçün yenə Util-dən istifadə edirik
+        String entryStr = DateUtil.formatDateTime(entryTime);
+        String exitStr = (exitTime != null) ? DateUtil.formatDateTime(exitTime) : "Henüz Parkdan Çıkmadı";
+
         long duration = DateUtil.getMinutesBetween(entryTime, exitTime);
 
         return String.format(
-                "Tarixçə [Nömrə: %s | Yer: %s | Zone: %s | Giriş: %s | Çıxış: %s | Müddət: %d dəq | Ödəniş: %.2f AZN]",
+                "Geçmiş [Numara: %s | Konum: %s | Bölge: %s | Giriş: %s | Çıkış: %s | Süre: %d dk | Ücret: %.2f AZN]",
                 plate, spotID, zoneID, entryStr, exitStr, duration, fee);
     }
 

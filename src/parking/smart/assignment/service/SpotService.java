@@ -13,15 +13,14 @@ public class SpotService {
         this.zones = initialZones;
     }
 
-    // SpotService daxilində zonaların siyahısını qaytaran metod
     public List<Zone> getAllZones() {
-        return this.zones; // Zonaların saxlandığı List-i qaytarır
+        return zones;
     }
 
     public int getTotalSpotsCount() {
         int total = 0;
         for (Zone zone : zones) {
-            // Hər zonadakı yerlərin sayını toplayırıq
+
             total += zone.getSpots().size();
         }
         return total;
@@ -31,7 +30,7 @@ public class SpotService {
         int occupied = 0;
         for (Zone zone : zones) {
             for (ParkingSpot spot : zone.getSpots()) {
-                // Əgər yer doludursa, sayğacı artırırıq
+
                 if (spot.getIsOccupied()) {
                     occupied++;
                 }
@@ -44,7 +43,7 @@ public class SpotService {
         for (Zone zone : zones) {
             ParkingSpot availableSpot = zone.getSpots().stream()
                     .filter(spot -> !spot.getIsOccupied())
-                    // .filter(spot-> spot.getType().equals(requestedSize.toString()))
+
                     .findFirst()
                     .orElse(null);
 
@@ -85,9 +84,9 @@ public class SpotService {
     }
 
     public void printAllSpotStatuses() {
-        System.out.println("\n*** BÜTÜN ZONALAR ÜZRƏ SPOT VƏZİYYƏTİ ***");
+        System.out.println("\n*** TÜM BÖLGELERDEKİ YER DURUMU ***");
         for (Zone zone : zones) {
-            System.out.println("--- Zone " + zone.getZoneID() + " ---");
+            System.out.println("--- Bölge " + zone.getZoneID() + " ---");
             zone.getSpots().forEach(spot -> {
                 String status = spot.getIsOccupied()
                         ? "DOLU (" + spot.getAssignedVehicle().getPlate() + ")"

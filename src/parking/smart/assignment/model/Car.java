@@ -8,7 +8,7 @@ public class Car extends Vehicle {
     @Override
     public void park() {
         super.park();
-        System.out.println("Car with plate " + this.getPlate() + " has been parked.");
+        System.out.println("Araba " + this.getPlate() + " Park edildi.");
     }
 
 }

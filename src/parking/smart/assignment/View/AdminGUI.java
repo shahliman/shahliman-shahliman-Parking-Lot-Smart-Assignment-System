@@ -19,49 +19,46 @@ public class AdminGUI extends JFrame {
     public AdminGUI(AdminController controller) {
         this.adminController = controller;
         setupUI();
-        startRealTimeUpdates(); // Məlumatları hər saniyə yeniləyir
+        startRealTimeUpdates();
     }
 
     private void setupUI() {
-        setTitle("Parking Control Center - Admin");
+        setTitle("Park Kontrol Merkezi - Yönetim");
         setSize(1100, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- 1. SIDEBAR ---
         JPanel sidebar = new JPanel();
         sidebar.setBackground(new Color(33, 37, 41));
         sidebar.setPreferredSize(new Dimension(250, 700));
         sidebar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 15));
 
-        JLabel logoLabel = new JLabel("ADMIN PANEL");
+        JLabel logoLabel = new JLabel("Yönetici Paneli");
         logoLabel.setForeground(Color.WHITE);
         logoLabel.setFont(new Font("Arial", Font.BOLD, 22));
         logoLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 30, 0));
         sidebar.add(logoLabel);
 
-        JButton btnDashboard = createSidebarButton("📊 Dashboard");
-        JButton btnHistory = createSidebarButton("📜 Full History");
+        JButton btnDashboard = createSidebarButton("Gösterge Paneli");
+        JButton btnHistory = createSidebarButton("Tüm Tarihçe");
 
         sidebar.add(btnDashboard);
         sidebar.add(btnHistory);
 
-        // --- 2. CONTENT AREA ---
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(createDashboardPanel(), "DASHBOARD");
-        contentPanel.add(createHistoryPanel(), "HISTORY");
+        contentPanel.add(createDashboardPanel(), "Gösterge Paneli");
+        contentPanel.add(createHistoryPanel(), "Tüm Tarihçe");
 
-        // Düymə funksiyaları
         btnDashboard.addActionListener(e -> {
             updateStats();
-            cardLayout.show(contentPanel, "DASHBOARD");
+            cardLayout.show(contentPanel, "Gösterge Paneli");
         });
         btnHistory.addActionListener(e -> {
             updateHistoryTable();
-            cardLayout.show(contentPanel, "HISTORY");
+            cardLayout.show(contentPanel, "Tüm Tarihçe");
         });
 
         add(sidebar, BorderLayout.WEST);
@@ -72,26 +69,25 @@ public class AdminGUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(20, 20));
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Statistika Kartları üçün Label-ləri yaradırıq
         lblRevenue = new JLabel("0.00 AZN");
         lblActiveCars = new JLabel("0");
         lblFreeSpots = new JLabel("0");
 
         JPanel statsContainer = new JPanel(new GridLayout(1, 3, 20, 0));
-        statsContainer.add(new StatCard("Total Revenue", lblRevenue, new Color(40, 167, 69)));
-        statsContainer.add(new StatCard("Active Cars", lblActiveCars, new Color(0, 123, 255)));
-        statsContainer.add(new StatCard("Free Spots", lblFreeSpots, new Color(255, 193, 7)));
+        statsContainer.add(new StatCard("Toplam Gelir", lblRevenue, new Color(40, 167, 69)));
+        statsContainer.add(new StatCard("Aktif Araçlar", lblActiveCars, new Color(0, 123, 255)));
+        statsContainer.add(new StatCard("Boş Yerler", lblFreeSpots, new Color(255, 193, 7)));
 
-        panel.add(new JLabel("Welcome back, Admin!", SwingConstants.LEFT), BorderLayout.NORTH);
+        panel.add(new JLabel("Tekrar hoş geldiniz, Yönetici!", SwingConstants.LEFT), BorderLayout.NORTH);
         panel.add(statsContainer, BorderLayout.CENTER);
         return panel;
     }
 
     private JPanel createHistoryPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Full Parking History Report"));
+        panel.setBorder(BorderFactory.createTitledBorder("Tüm Park Tarihçe Raporu"));
 
-        String[] cols = { "Plate", "Entry Time", "Exit Time", "Fee (AZN)", "Spot" };
+        String[] cols = { "Plaka", "Boyut", "Giriş Saati", "Çikiş Saati", "Ücret (AZN)", "Yer" };
         historyTableModel = new DefaultTableModel(cols, 0);
         JTable table = new JTable(historyTableModel);
         table.setRowHeight(30);
@@ -100,10 +96,8 @@ public class AdminGUI extends JFrame {
         return panel;
     }
 
-    // --- Backend-dən Məlumatları Çəkən Metodlar ---
-
     public void updateStats() {
-        // İndi bu metodlar Controller-dən real datanı çəkir
+
         double revenue = adminController.getHistoryService().getTotalRevenue();
         int occupied = adminController.getSpotService().getOccupiedSpotsCount();
         int total = adminController.getSpotService().getTotalSpotsCount();
@@ -118,16 +112,16 @@ public class AdminGUI extends JFrame {
         List<ParkingHistory> history = adminController.getHistoryService().getCompletedHistoryRecords();
 
         if (history == null)
-            return; // Siyahı boşdursa çıx
+            return;
 
         for (ParkingHistory record : history) {
-            // Əgər record və ya daxilindəki vehicle null-dursa xəta verməsin deyə
-            // yoxlayırıq
+
             if (record != null && record.getVehicle() != null) {
                 historyTableModel.addRow(new Object[] {
                         record.getVehicle().getPlate(),
+                        record.getVehicleSize(),
                         record.getEntryTime() != null ? record.getEntryTime() : "---",
-                        record.getExitTime() != null ? record.getExitTime() : "Davam edir",
+                        record.getExitTime() != null ? record.getExitTime() : "Devam edir",
                         String.format("%.2f", record.getFee()),
                         record.getVehicle().getAssignedSpotID()
                 });
@@ -137,7 +131,7 @@ public class AdminGUI extends JFrame {
 
     private void startRealTimeUpdates() {
         Timer timer = new Timer(1000, e -> {
-            if (contentPanel.getComponent(0).isVisible()) { // Dashboard açıqdırsa
+            if (contentPanel.getComponent(0).isVisible()) {
                 updateStats();
             }
         });
@@ -158,7 +152,6 @@ public class AdminGUI extends JFrame {
     }
 }
 
-// --- Yenilənmiş StatCard Class-ı ---
 class StatCard extends JPanel {
     public StatCard(String title, JLabel valueLabel, Color color) {
         setLayout(new BorderLayout());
