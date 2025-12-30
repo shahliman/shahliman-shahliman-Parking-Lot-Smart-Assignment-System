@@ -3,7 +3,6 @@ package parking.smart.assignment.service;
 import parking.smart.assignment.model.*;
 import parking.smart.assignment.model.Vehicle.VehicleSize;
 
-// import java.util.ArrayList;
 import java.util.List;
 
 public class SpotService {

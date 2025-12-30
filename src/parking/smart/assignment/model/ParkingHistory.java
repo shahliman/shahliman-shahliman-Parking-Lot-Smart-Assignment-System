@@ -2,7 +2,6 @@ package parking.smart.assignment.model;
 
 import java.time.LocalDateTime;
 
-// import parking.smart.assignment.model.Vehicle.VehicleSize;
 import parking.smart.assignment.util.DateUtil;
 
 public class ParkingHistory {

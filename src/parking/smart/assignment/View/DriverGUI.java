@@ -95,14 +95,14 @@ public class DriverGUI extends JFrame {
         tablePanel.add(scrollPane, BorderLayout.CENTER);
 
         btnCheckIn.addActionListener(e -> {
-            // Sabit MEDIUM əvəzinə Login-dən gələn currentSize istifadə olunur
+
             String response = parkingController.enterVehicle(new Car(currentPlate, currentSize));
             JOptionPane.showMessageDialog(this, response, "Otopark", JOptionPane.INFORMATION_MESSAGE);
             updateTable();
         });
 
         btnCheckOut.addActionListener(e -> {
-            // Eyni düzəliş bura da aiddir
+
             String response = parkingController.exitVehicle(new Car(currentPlate, currentSize));
             JOptionPane.showMessageDialog(this, response, "Çıkış", JOptionPane.INFORMATION_MESSAGE);
             updateTable();

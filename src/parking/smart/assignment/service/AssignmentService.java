@@ -27,7 +27,6 @@ public class AssignmentService {
         return this.spotService;
     }
 
-    // 1. PARK ETMƏ VƏ BAZAYA İLK QEYD (INSERT)
     public boolean parkVehicle(Vehicle vehicle) {
         ParkingSpot existingSpot = spotService.findSpotByPlate(vehicle.getPlate());
 
@@ -40,24 +39,22 @@ public class AssignmentService {
         ParkingSpot availableSpot = spotService.findAvailableSpot(size);
 
         if (availableSpot != null) {
-            // RAM Əməliyyatları
+
             availableSpot.setAssignVehicle(vehicle);
             vehicle.assignSpot(availableSpot.getSpotID());
             vehicle.park();
             historyService.createParkingEntry(vehicle);
 
-            // BAZA ƏMƏLİYYATI (INSERT) - Bu hissə mütləqdir ki, sətir yaransın
             saveEntryToDatabase(vehicle, availableSpot.getSpotID());
 
-            System.out.println("BAŞARILI: " + vehicle.getPlate() + " bazaya və yerinə qeyd edildi.");
+            System.out.println("BAŞARILI: " + vehicle.getPlate() + " Veritabanına kaydedilen bilgiler.");
             return true;
         } else {
-            System.out.println("HATA: Boş yer tapılmadı.");
+            System.out.println("HATA: Boş yer bulunmadı.");
             return false;
         }
     }
 
-    // 2. ÇIXIŞ VƏ BAZADA YENİLƏMƏ (UPDATE)
     public ParkingHistory unParkVehicle(Vehicle vehicle) {
         ParkingSpot occupiedSpot = spotService.findSpotByPlate(vehicle.getPlate());
 
@@ -70,7 +67,6 @@ public class AssignmentService {
             if (completedHistory != null) {
                 paymentService.calculateFee(completedHistory);
 
-                // BAZA ƏMƏLİYYATI (UPDATE)
                 updateExitInDatabase(completedHistory);
 
                 occupiedSpot.setRemoveVehicle();
@@ -79,8 +75,6 @@ public class AssignmentService {
         }
         return null;
     }
-
-    // --- KÖMƏKÇİ SQL METODLARI ---
 
     private void saveEntryToDatabase(Vehicle vehicle, String spotId) {
         String sql = "INSERT INTO parking_history (plate, spot_id, vehicle_size, entry_time) VALUES (?, ?, ?, ?)";
@@ -93,9 +87,9 @@ public class AssignmentService {
             pstmt.setTimestamp(4, Timestamp.valueOf(vehicle.getEntryTime()));
 
             pstmt.executeUpdate();
-            System.out.println("DB: Giriş qeydi yaradıldı.");
+            System.out.println("DB: Giriş kaydı yaratıldı.");
         } catch (SQLException e) {
-            System.err.println("DB ERROR (Insert): " + e.getMessage());
+            System.err.println("DB HATA: " + e.getMessage());
         }
     }
 
@@ -110,12 +104,12 @@ public class AssignmentService {
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
-                System.out.println("DB: Çıxış qeydi yeniləndi.");
+                System.out.println("DB: Çıkış kaydı güncellendi.");
             } else {
-                System.out.println("DB: Yenilənəcək aktiv qeyd tapılmadı!");
+                System.out.println("DB: Güncellenicek aktiv kayd bulunamadı!");
             }
         } catch (SQLException e) {
-            System.err.println("DB ERROR (Update): " + e.getMessage());
+            System.err.println("DB HATA: " + e.getMessage());
         }
     }
 }
