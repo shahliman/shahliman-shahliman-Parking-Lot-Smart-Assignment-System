@@ -19,8 +19,7 @@ public class Vehicle {
     }
 
     public enum VehicleType {
-        Car,
-        Motorcycle,
+        Car
     }
 
     public enum VehicleSize {
