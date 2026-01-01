@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS parking_history (
+CREATE TABLE parking_history (
     id SERIAL PRIMARY KEY,
     plate VARCHAR(20),
     vehicle_size VARCHAR(20),
@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS parking_history (
 );
 
 select * from parking_history
+
 
 
